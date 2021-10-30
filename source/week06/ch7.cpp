@@ -49,9 +49,10 @@ constexpr char print = '=';
 constexpr char name = 'a';
 constexpr char let = 'L';
 constexpr char result = '=';
-const string declkey = "let"; //constexpr string since C++20 only
+const string declkey = "#"; //constexpr string since C++20 only
 const string declkey1 = "pow";
 const string declkey2 = "sqrt";
+const string declkeyx = "exit";
 constexpr char power = 'p';
 constexpr char square = '@';
 
@@ -175,7 +176,8 @@ Token Token_stream::get()
     			s += ch;
     			while (cin.get(ch) && (isalpha(ch) || isdigit(ch))) s += ch;
     			cin.putback(ch);
-    			if (s == declkey) return Token{let};
+    			if (s == declkey) return Token{let};	
+    			if (s == declkeyx) return Token{quit};
     			else if (s == declkey1) return Token{power}; 
     			else if (s == declkey2) return Token{square}; 
     			else if (is_declared(s))
@@ -230,7 +232,7 @@ void calculate()
 int main() 
 try { 
 			cout << "\nYou are allowed to use +,-,*,/,sqrt(), and pow()\n\n";
-			cout << "Once you are done entering an expression, enter a ';' to execute the expression.\n";
+			cout << "Once you are done entering an expression, enter a '=' to execute the expression. Quit= 'exit' or 'x'.\n";
 			cout << "pow() is used in the following syntax: pow(<number to be raised>,<number to raise it to>)\n\n";
 
 	define_name("pi", 3.1415926535);
@@ -382,7 +384,7 @@ double pows() {
 	        double d=expression();
 	Token t2 = ts.get();
 	        if (t2.kind !=',') error("',' expected");
-	        double i=expression();
+	        int i=narrow_cast<int>(expression());
 	Token t3 = ts.get();
 	        if (t3.kind != ')') error("')' expected");
 	        return pow(d,i);
@@ -401,4 +403,3 @@ void set_value(string s, double d)
 // Program end!
 
 
-//CH7drill pow sqrt le kell kezelni a orimayben
