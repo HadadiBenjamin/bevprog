@@ -12,9 +12,9 @@
 		Quit
 		Calculation Statement
 	Print:
-		;
+		=
 	Quit:
-		q
+		x or exit
 	Statement:
 		Declaration
 		Expression
@@ -38,6 +38,7 @@
 		+ Primary
 	Number:
 		floating-point-literal
+
 */
 
 #include "std_lib_facilities.h" //Include usual header
@@ -49,7 +50,16 @@ constexpr char print = '=';
 constexpr char name = 'a';
 constexpr char let = 'L';
 constexpr char result = '=';
-const string declkey = "#"; //constexpr string since C++20 only
+constexpr char open = '(';
+constexpr char close = ')';
+constexpr char comma = ',';
+constexpr char sum = '+';
+constexpr char dot = '.';
+constexpr char subtr = '-';
+constexpr char multpl = '*';
+constexpr char divis = '/';
+constexpr char mod = '%';
+const string declkey = "let"; //constexpr string since C++20 only
 const string declkey1 = "pow";
 const string declkey2 = "sqrt";
 const string declkeyx = "exit";
@@ -147,18 +157,18 @@ Token Token_stream::get()
 
 	switch (ch)
 	{
-		case '=':
-		case 'x':
-		case '(':
-		case ')':
-		case ',':
-		case '+':
-		case '-':
-		case '*':
-		case '/':
-		case '%':
+		case print:
+		case quit:
+		case open:
+		case close:
+		case comma:
+		case sum:
+		case subtr:
+		case multpl:
+		case divis:
+		case mod:
 			return Token(ch);
-		case '.':
+		case dot:
 		case '0': case '1': case '2': case '3': case '4':
     	case '5': case '6': case '7': case '8': case '9':
     	{
@@ -229,12 +239,18 @@ void calculate()
 	}
 }
 
+void help() {
+	cout << "\nYou are allowed to use +,-,*,/,%,sqrt(), and pow()\n\n";
+	cout << "Once you are done entering an expression, enter a '=' to execute the expression. Quit= 'exit' or 'x'.\n";
+	cout << "pow() is used in the following syntax: pow(<number to be raised>,<number to raise it to>)\n\n";
+
+}
+
 int main() 
 try { 
-			cout << "\nYou are allowed to use +,-,*,/,sqrt(), and pow()\n\n";
-			cout << "Once you are done entering an expression, enter a '=' to execute the expression. Quit= 'exit' or 'x'.\n";
-			cout << "pow() is used in the following syntax: pow(<number to be raised>,<number to raise it to>)\n\n";
 
+	help();
+			
 	define_name("pi", 3.1415926535);
 	define_name("e", 2.7182818284);
 	
@@ -256,18 +272,18 @@ double primary()
 	Token t = ts.get();
 	switch (t.kind)
 	{
-		case '(':
+		case open:
 		{
 			double d = expression();
 			t = ts.get();
-			if (t.kind != ')') error("')' expected");
+			if (t.kind != close) error("')' expected");
 			return d;
 		}
 		case number:
 			return t.value;
-		case '-':
+		case subtr:
 			return - primary();
-		case '+':
+		case sum:
 			return primary();
 		case power: return pows();
 		case square: return sqrts();	
@@ -285,11 +301,11 @@ double term()
 	{
 		switch (t.kind)
 		{
-			case '*':
+			case multpl:
 				left *= primary();
 				t = ts.get();
 				break;
-			case '/':
+			case divis:
 			{
 				double d = primary();
 				if (d == 0) error("divide by zero");
@@ -297,7 +313,7 @@ double term()
 				t = ts.get();
 				break;
 			}
-			case '%':
+			case mod:
 			{
 				double d = primary();
 				if (d == 0) error("%: divide by zero");
@@ -328,11 +344,11 @@ double expression()
 	{
 		switch(t.kind)
 		{
-			case '+':
+			case sum:
 				left += term();
 				t = ts.get();
 				break;
-			case '-':
+			case subtr:
 				left -= term();
 				t = ts.get();
 				break;
@@ -371,22 +387,22 @@ double statement()
 }
 double sqrts() {
 	Token t = ts.get();
-	        if (t.kind != '(') error("'(' expected");
+	        if (t.kind != open) error("'(' expected");
 	        double d=expression();
-	        if (d<0) error("Negativ szamnak nincs negyzetgyoke!");
+	        if (d<0) error("value is negative");
 	Token t2 = ts.get();
-	        if (t2.kind != ')') error("')' expected");
+	        if (t2.kind != close) error("')' expected");
 	        return sqrt(d);
 		}
 double pows() {
 	Token t = ts.get();
-	        if (t.kind != '(') error("'(' expected");
+	        if (t.kind != open) error("'(' expected");
 	        double d=expression();
 	Token t2 = ts.get();
-	        if (t2.kind !=',') error("',' expected");
+	        if (t2.kind !=comma) error("',' expected");
 	        int i=narrow_cast<int>(expression());
 	Token t3 = ts.get();
-	        if (t3.kind != ')') error("')' expected");
+	        if (t3.kind != close) error("')' expected");
 	        return pow(d,i);
 		}
 void set_value(string s, double d)
@@ -401,5 +417,4 @@ void set_value(string s, double d)
 //Functions mapping grammar rules end //////////////////////////
 
 // Program end!
-
 
